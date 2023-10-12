@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'style.dart';
 
-void main(){
+enum Language {cpp, python, dart}
+
+void main() {
   runApp(MyApp());
 }
 
@@ -11,83 +12,195 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'First Flutter App',
+      title: 'Grade Calculator',
       theme: ThemeData(
-        primaryColor:  Colors.blue,
-        // primarySwatch: Colors.orange,
-        fontFamily: 'Pretendard',
+        primarySwatch: Colors.orange,
       ),
       home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  MyHomePage({super.key});
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
 
-  // final items = List.generate(100, (index) => index).toList();   // 0 ~ 99까지 넣기
-  
   @override
-  Widget build(BuildContext context) {
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage>{
+
+  final _midController = TextEditingController();
+  final _finalController = TextEditingController();
+  final _pointList = List.generate(10, (i) => i);
+  var _selectedValue = 0;
+  bool _isLeader = false;
+  bool _isAbsenceLess4 = true;
+  String _grade = 'B';
+
+  void dispose(){
+    _midController.dispose();
+    _finalController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context){
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColor.Malachite,
-        title: const Text('Assignment 2'),
+        title: Text('Receive User Information'),
         actions: [
           IconButton(onPressed: (){}, icon: Icon(Icons.add)),
-          IconButton(onPressed: (){}, icon: Icon(Icons.search)),
-          IconButton(onPressed: (){}, icon: Icon(Icons.person))
         ],
       ),
-      body: Center(
-        child: Column(
-          children: [
-            const Stack(
-              alignment: Alignment.center,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+            child: ListView(
               children: [
-                Opacity(
-                  opacity: 0.2,
-                  child: Image(
-                    image: AssetImage(
-                        'assets/warning.jpeg'
-                    ),
-                    width: 300.0,
+                TextField(
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Midterm Exam'
                   ),
+                  controller: _midController,
+                  keyboardType: TextInputType.number,
                 ),
-
-                Text('This page does not include contents'),
-              ],
-            ),
-            Expanded(
-                child:
-                ListView(
-                  scrollDirection: Axis.vertical,
+                Container(
+                  height: 20,
+                ),
+                TextField(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Final Exam'
+                  ),
+                  controller: _finalController,
+                  keyboardType: TextInputType.number,
+                ),
+                Container(
+                  height: 20,
+                ),
+                RadioListTile(
+                    title: Text('Project Team Leader (+10)'),
+                    value: true,
+                    groupValue: _isLeader,
+                    onChanged: (value){
+                      setState(() {
+                        _isLeader = value!;
+                      });
+                    }
+                ),
+                RadioListTile(
+                    title: Text('Project Team Member'),
+                    value: false,
+                    groupValue: _isLeader,
+                    onChanged: (value){
+                      setState(() {
+                        _isLeader = value!;
+                      });
+                    }
+                ),
+                Container(
+                  height: 20,
+                ),
+                Row(
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.home),
-                      title: const Text('Home'),
-                      trailing: const Icon(Icons.navigate_next),
-                      onTap: (){},
+                    const Expanded(
+                      flex: 7,
+                      child: Text(
+                          'Additional Point',
+                          textAlign: TextAlign.left,
+                      ),
                     ),
-                    ListTile(
-                      leading: const Icon(Icons.calendar_month),
-                      title: const Text('Calendar'),
-                      trailing: const Icon(Icons.navigate_next),
-                      onTap: (){},
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.camera),
-                      title: const Text('Camera'),
-                      trailing: const Icon(Icons.navigate_next),
-                      onTap: (){},
+                    Expanded(
+                      flex: 3,
+                      child: DropdownButton(
+                          isExpanded: true,
+                          alignment: Alignment.centerRight,
+                          value: _selectedValue,
+                          items: _pointList.map(
+                              (point) => DropdownMenuItem(
+                                  value: point,
+                                  child: Text('$point point'))).toList(),
+                        onChanged: (value) {
+                            setState(() {
+                              _selectedValue = value!;
+                            });
+                        },
+
+                      ),
                     ),
                   ],
                 ),
+                Row(
+                  children: [
+                    const Expanded(
+                      flex: 9,
+                      child: Text(
+                          'Absence less than 4',
+                          textAlign: TextAlign.left,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Checkbox(
+                          value: _isAbsenceLess4,
+                          onChanged: (value){
+                            setState(() {
+                              _isAbsenceLess4 = value!;
+                            });
+                          }
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  height: 20,
+                ),
+                Text(
+                  _grade,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 25, color: Colors.orange),
+                ),
+                Container(
+                  height: 20,
+                ),
+                ElevatedButton(onPressed: (){
+                  setState(() {
+                    var midValue = double.parse(_midController.text.trim());
+                    var finalValue = double.parse(_finalController.text.trim());
+                    var sum = midValue + finalValue + _selectedValue;
+                    if(_isLeader) {
+                      sum += 10;
+                    }
+                    if(!_isAbsenceLess4){
+                      _grade = 'F';
+                    }
+                    else if(sum >= 170){
+                      _grade = 'A';
+                    }
+                    else if(sum >= 150){
+                      _grade = 'B';
+                    }
+                    else if(sum >= 130){
+                      _grade = 'C';
+                    }
+                    else if(sum >= 110){
+                      _grade = 'D';
+                    }
+                    else{
+                      _grade = 'F';
+                    }
+                  });
+                }, child: Text('Enter')),
+              ],
             ),
-          ],
+          
         ),
       ),
       drawer: Drawer(),
     );
   }
+
 }
