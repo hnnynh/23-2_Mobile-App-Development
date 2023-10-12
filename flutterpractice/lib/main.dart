@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-enum Language {cpp, python, dart}
-
 void main() {
   runApp(MyApp());
 }
@@ -15,6 +13,7 @@ class MyApp extends StatelessWidget {
       title: 'Grade Calculator',
       theme: ThemeData(
         primarySwatch: Colors.orange,
+
       ),
       home: MyHomePage(),
     );
@@ -23,6 +22,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
+
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -198,8 +198,8 @@ class _MyHomePageState extends State<MyHomePage>{
             ),
           
         ),
+        drawer: Drawer(),
       ),
-      drawer: Drawer(),
     );
   }
 
